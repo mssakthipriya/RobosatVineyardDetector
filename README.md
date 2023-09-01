@@ -20,6 +20,12 @@ The geojason file that get exported mught have multipolygons, which cannot be ha
 ## Data Preprocessing
 Download robosat from github and follow the installation process. I used a linux system for the whole process and manually installed it.
 Convert the imagery to a suitable format compatible with RoboSat.
+Clean the data
+
+## Dataset Creation
+Prepare a training dataset by combining the preprocessed imagery with annotations.
+
+
 ```
 # Make folder structure for dataset
 mkdir -p dataset
@@ -38,18 +44,29 @@ mkdir -p myanmar/holdout/labels
     ./rs cover --zoom ZOOM vineyard_jura_small.geojson vineyards-cover.csv
 
 #Downloading tiles
-./rs download --ext png https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.png?access_token=ACCESS_TOCKEN vineyards-cover.csv vineyards/dataset/holdout/images
+    ./rs download --ext png https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.png?access_token=ACCESS_TOCKEN vineyards-cover.csv vineyards/dataset/holdout/images
 
 #Rasterizing
-./rs rasterize --zoom ZOOM --dataset vineyards/config/model-unet.toml vineyard_jura_small.geojson vineyards-cover.csv vineyards/dataset/holdout/labels
+    ./rs rasterize --zoom ZOOM --dataset vineyards/config/model-unet.toml vineyard_jura_small.geojson vineyards-cover.csv vineyards/dataset/holdout/labels
 
+Divide the dataset into training and validation subsets for model development and evaluation.
+Use create_dataset.py ZOOM 0.7 0.2 0.1  for the same. Here its divided into 70% 20% and 10%
 ```
 
-## Dataset Creation
-Prepare a training dataset by combining the preprocessed imagery with annotations.
-Divide the dataset into training and validation subsets for model development and evaluation.
 ## Model Training
 Utilize RoboSat's training capabilities to train a deep learning model for vineyard detection.
+Use rs weights for calculating class weights for a Slippy Map directory with masks.
+```
+./rs weights --dataset vineyards/config/model-unet.toml
+```
+Use rs train to train the model on a training set made up of (image, mask) pairs.
+```
+./rs train --dataset vineyards/config/model-unet.toml --model vineyards/config/model-unet.toml
+```
+Once the model is trained you will get the checkpoint.pth files, containing weights for the trained model.
+
+
+
 ## Model Evaluation
 Assess the trained model's performance by evaluating it on the validation dataset.
 Utilize RoboSat's object detection or semantic segmentation capabilities to identify vineyards within the imagery.
