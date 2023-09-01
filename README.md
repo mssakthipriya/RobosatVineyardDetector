@@ -65,14 +65,32 @@ Use rs train to train the model on a training set made up of (image, mask) pairs
 ```
 Once the model is trained you will get the checkpoint.pth files, containing weights for the trained model.
 
-
-
 ## Model Evaluation
 Assess the trained model's performance by evaluating it on the validation dataset.
 Utilize RoboSat's object detection or semantic segmentation capabilities to identify vineyards within the imagery.
+Use rs predict to predict class probabilities for each image tile in a Slippy Map directory structure. The result of rs predict is a Slippy Map directory with a class probability encoded in a .png file per tile.
+Here images contain the mges in Slippy tile format that I am going to predict and the output will be in segmentation-probabilities.
+
+Use convertToSlippyTile.py to get the slippy tile format by inputting the latitude longitude and the radius required.
+
+```
+./rs predict --tile_size 512 --model vineyards/config/model-unet.toml --dataset vineyards/config/model-unet.toml --checkpoint vineyards/checkpoint-00099-of-00100.pth images segmentation-probabilities
+```
+Now use rs masks for generating segmentation masks for each class probability .png file in a Slippy Map directory structure.
+```
+./rs masks segmentation-masks segmentation-probabilities
+```
+
 ## Post-processing
 Smooth boundaries, remove false positives, and improve the overall accuracy of the vineyard detection results.
+Use rs features to extract simplified GeoJSON features for segmentation masks in a Slippy Map directory structure.
+```
+./rs features --type vineyard --dataset vineyards/config/model-unet.toml segmentation-masks output
+```
+You will finally get geojason file for visualizing the results
+
 ## Visualization and Analysis
 Visualize the detected vineyard areas on maps or imagery for further analysis.
+You can see a sample template here.
 ## Result Interpretation and Application
-Apply the findings to create your desired application
+Apply the findings to create your desired application.
