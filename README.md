@@ -4,7 +4,7 @@
 RoboSat offers an extract command to directly extract data from an OpenStreetMap .pbf dump file.
 However, it is limited to default example features like buildings, parking lots, and roads.
 Overpass Turbo was used to build a custom query for selecting and downloading vineyard polygons from OpenStreetMap for a specific region of Spain (La Mancha).
-'''
+```
 [out:json];
 (
   area["name"="Jura"]->.region;
@@ -14,7 +14,7 @@ Overpass Turbo was used to build a custom query for selecting and downloading vi
 out body;
 >;
 out skel qt;
-'''
+```
  
 ## Data Preprocessing
 	Convert the imagery to a suitable format compatible with RoboSat.
