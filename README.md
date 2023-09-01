@@ -15,9 +15,36 @@ out body;
 >;
 out skel qt;
 ```
+The geojason file that get exported mught have multipolygons, which cannot be handled by robosat. The multipolygons need to be converted to individual polygons and added as separate features before inputting the data into Robosat.
  
 ## Data Preprocessing
+Download robosat from github and follow the installation process. I used a linux system for the whole process and manually installed it.
 Convert the imagery to a suitable format compatible with RoboSat.
+```
+# Make folder structure for dataset
+mkdir -p dataset
+mkdir -p dataset/training
+mkdir -p dataset/training/images
+mkdir -p dataset/training/labels
+mkdir -p dataset/validation
+mkdir -p dataset/validation/images
+mkdir -p dataset/validation/labels
+mkdir -p myanmar/holdout
+mkdir -p myanmar/holdout/images
+mkdir -p myanmar/holdout/labels
+
+#Writing cover CSV
+# I gave the zoom level as 18
+    ./rs cover --zoom ZOOM vineyard_jura_small.geojson vineyards-cover.csv
+
+#Downloading tiles
+./rs download --ext png https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.png?access_token=ACCESS_TOCKEN vineyards-cover.csv vineyards/dataset/holdout/images
+
+#Rasterizing
+./rs rasterize --zoom ZOOM --dataset vineyards/config/model-unet.toml vineyard_jura_small.geojson vineyards-cover.csv vineyards/dataset/holdout/labels
+
+```
+
 ## Dataset Creation
 Prepare a training dataset by combining the preprocessed imagery with annotations.
 Divide the dataset into training and validation subsets for model development and evaluation.
